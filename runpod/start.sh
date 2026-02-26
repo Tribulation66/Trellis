@@ -41,6 +41,12 @@ export PATH="$CONDA_DIR/bin:$PATH"
 # shellcheck disable=SC1091
 source "$CONDA_DIR/etc/profile.d/conda.sh"
 
+# Accept Anaconda Terms of Service (required for non-interactive conda operations)
+conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/main || true
+conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/r || true
+conda config --set always_yes yes || true
+
+
 # Create env
 if ! conda env list | awk '{print $1}' | grep -qx trellis2; then
   log "creating conda env trellis2 (python 3.10)"
