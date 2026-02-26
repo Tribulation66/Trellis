@@ -76,7 +76,7 @@ log "installing flash-attn (required)"
 export CUDA_HOME="${CUDA_HOME:-/usr/local/cuda}"
 export TORCH_CUDA_ARCH_LIST="${TORCH_CUDA_ARCH_LIST:-8.6}"
 export MAX_JOBS="${MAX_JOBS:-8}"
-conda run -n trellis2 python -m pip install flash-attn==2.7.3
+conda run -n trellis2 python -m pip install --no-build-isolation --no-cache-dir flash-attn==2.7.3
 
 # GPU extensions
 mkdir -p /tmp/extensions
