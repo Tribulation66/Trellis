@@ -1,4 +1,5 @@
 from typing import *
+import os
 from transformers import AutoModelForImageSegmentation
 import torch
 from torchvision import transforms
@@ -7,6 +8,9 @@ from PIL import Image
 
 class BiRefNet:
     def __init__(self, model_name: str = "ZhengPeng7/BiRefNet"):
+        if "RMBG-2.0" in model_name:
+            model_name = os.getenv("TRELLIS2_REMBG_FALLBACK", "ZhengPeng7/BiRefNet")
+
         self.model = AutoModelForImageSegmentation.from_pretrained(
             model_name, trust_remote_code=True
         )
@@ -30,7 +34,9 @@ class BiRefNet:
         
     def __call__(self, image: Image.Image) -> Image.Image:
         image_size = image.size
-        input_images = self.transform_image(image).unsqueeze(0).to("cuda")
+        if torch.cuda.is_available() and next(self.model.parameters()).device.type != "cuda":
+            self.model = self.model.to("cuda")
+        input_images = self.transform_image(image).unsqueeze(0).to(device=next(self.model.parameters()).device, dtype=next(self.model.parameters()).dtype)
         # Prediction
         with torch.no_grad():
             preds = self.model(input_images)[-1].sigmoid().cpu()

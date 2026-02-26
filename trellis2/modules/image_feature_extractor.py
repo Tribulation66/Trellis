@@ -46,11 +46,14 @@ class DinoV2FeatureExtractor:
             image = [i.resize((518, 518), Image.LANCZOS) for i in image]
             image = [np.array(i.convert('RGB')).astype(np.float32) / 255 for i in image]
             image = [torch.from_numpy(i).permute(2, 0, 1).float() for i in image]
-            image = torch.stack(image).cuda()
+            image = torch.stack(image)
         else:
             raise ValueError(f"Unsupported type of image: {type(image)}")
         
-        image = self.transform(image).cuda()
+        image = self.transform(image)
+        if torch.cuda.is_available():
+            self.model = self.model.to("cuda")
+            image = image.to("cuda")
         features = self.model(image, is_training=True)['x_prenorm']
         patchtokens = F.layer_norm(features, features.shape[-1:])
         return patchtokens
@@ -62,7 +65,11 @@ class DinoV3FeatureExtractor:
     """
     def __init__(self, model_name: str, image_size=512):
         self.model_name = model_name
-        self.model = DINOv3ViTModel.from_pretrained(model_name)
+        try:
+            self.model = DINOv3ViTModel.from_pretrained(model_name, token=True)
+        except TypeError:
+            self.model = DINOv3ViTModel.from_pretrained(model_name, use_auth_token=True)
+
         self.model.eval()
         self.image_size = image_size
         self.transform = transforms.Compose([
@@ -109,10 +116,13 @@ class DinoV3FeatureExtractor:
             image = [i.resize((self.image_size, self.image_size), Image.LANCZOS) for i in image]
             image = [np.array(i.convert('RGB')).astype(np.float32) / 255 for i in image]
             image = [torch.from_numpy(i).permute(2, 0, 1).float() for i in image]
-            image = torch.stack(image).cuda()
+            image = torch.stack(image)
         else:
             raise ValueError(f"Unsupported type of image: {type(image)}")
         
-        image = self.transform(image).cuda()
+        image = self.transform(image)
+        if torch.cuda.is_available():
+            self.model = self.model.to("cuda")
+            image = image.to("cuda")
         features = self.extract_features(image)
         return features

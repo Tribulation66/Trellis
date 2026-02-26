@@ -64,7 +64,11 @@ class DinoV3FeatureExtractor:
     """
     def __init__(self, model_name: str, image_size=512):
         self.model_name = model_name
-        self.model = DINOv3ViTModel.from_pretrained(model_name)
+        try:
+            self.model = DINOv3ViTModel.from_pretrained(model_name, token=True)
+        except TypeError:
+            self.model = DINOv3ViTModel.from_pretrained(model_name, use_auth_token=True)
+
         self.model.eval()
         self.image_size = image_size
         self.transform = transforms.Compose([

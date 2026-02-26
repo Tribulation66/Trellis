@@ -21,13 +21,13 @@ pipeline = Trellis2ImageTo3DPipeline.from_pretrained("microsoft/TRELLIS.2-4B")
 pipeline.cuda()
 
 # 3. Load Image & Run
-image = Image.open("assets/example_image/T.png")
+image = Image.open("FINAL.PNG")
 mesh = pipeline.run(image)[0]
 mesh.simplify(16777216) # nvdiffrast limit
 
 # 4. Render Video
 video = render_utils.make_pbr_vis_frames(render_utils.render_video(mesh, envmap=envmap))
-imageio.mimsave("sample.mp4", video, fps=15)
+imageio.mimsave("FINAL.mp4", video, fps=15)
 
 # 5. Export to GLB
 glb = o_voxel.postprocess.to_glb(
@@ -45,4 +45,4 @@ glb = o_voxel.postprocess.to_glb(
     remesh_project      =   0,
     verbose             =   True
 )
-glb.export("sample.glb", extension_webp=True)
+glb.export("FINAL.glb", extension_webp=False)
