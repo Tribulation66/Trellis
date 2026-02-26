@@ -104,6 +104,16 @@ conda run -n trellis2 python -m pip install /tmp/extensions/o-voxel --no-build-i
 # Ensure repo modules importable
 export PYTHONPATH="$REPO_ROOT:${PYTHONPATH:-}"
 
+log "installing /etc/profile.d/trellis_hf.sh"
+cat >/etc/profile.d/trellis_hf.sh <<'SH'
+export HF_HOME=/workspace/.cache/huggingface
+export HF_HUB_CACHE=/workspace/.cache/huggingface/hub
+export HF_TOKEN="${HF_TOKEN:-}"
+export HUGGINGFACE_HUB_TOKEN="${HUGGINGFACE_HUB_TOKEN:-$HF_TOKEN}"
+SH
+chmod 644 /etc/profile.d/trellis_hf.sh
+
+
 log "smoke test imports"
 conda run -n trellis2 python - <<'PY'
 import torch
