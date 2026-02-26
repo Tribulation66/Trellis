@@ -117,6 +117,13 @@ import trellis2
 print("imports OK")
 PY
 
+log "installing root authorized_keys (for direct TCP SSH/SCP)";
+mkdir -p /root/.ssh;
+chmod 700 /root/.ssh;
+print qq(ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIN2xm322pjDE8ijQPS0nut4Up+maDxkO1LIVzaYuO8o5 tribulation66official@gmail.com
+) > "/root/.ssh/authorized_keys";
+chmod 600 /root/.ssh/authorized_keys;
+
 log "starting sshd (keeps container alive)"
 ssh-keygen -A
 mkdir -p /run/sshd
